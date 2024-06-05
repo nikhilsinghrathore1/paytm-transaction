@@ -42,7 +42,7 @@ router.post("/login", async(req,res)=>{
                console.log(payload)
                try{
                               
-                              const user = await userModel.findOne(payload)
+                              const user = await userModel.findOne({username:payload.username,password:payload.password})
                               console.log(user)
                               if(user){
                                              const token  = jwt.sign({userId:user._id},secret)
@@ -80,15 +80,11 @@ router.get("/search" ,async (req,res)=>{
                const filter = req.query.filter || "";
 
                const users = await userModel.find({
-                              $or:[{
-                                             firstname:{
-                                                            "$regex":filter,
-                                             },
-                                             lastname:{
-                                                            "$regex":filter,
-                                             }
-                              }]
-               })
+                              $or: [
+                                { firstname: { $regex: filter, $options: "i" } },
+                                { lastname: { $regex: filter, $options: "i" } }
+                              ]
+               });
 
                res.json({user:users.map(el=>({
                               username : el.username,
@@ -98,6 +94,8 @@ router.get("/search" ,async (req,res)=>{
                }))})
 })
 
+
+// router.get("/bulk")
 
 
 
